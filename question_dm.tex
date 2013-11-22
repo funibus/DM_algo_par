@@ -1,0 +1,37 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{times}           
+\usepackage[french]{babel}
+
+\usepackage{graphicx}
+\usepackage{amsmath, amsthm, amssymb}  
+\usepackage{url}
+
+\sloppy
+
+\title{DM d'algo parallèle}
+\author{Baptiste Rozière et Alice Pellet-Mary}
+\date{\today} 
+
+\begin{document}
+
+\maketitle
+
+\section*{Question 3}
+
+
+\section*{Question 5}
+L'automate est bien définit si on n'a pas dans DEP à la fois nord et sud, ou bien à la fois ouest et est. Si on a nord et sud ou est et ouest, on aura une boucle, chaque case devra se mettre à jour après ses voisins qui devront eux même se mettre à jour après elle.
+En revanche, si on n'a pas à la fois nord et sud ou à la fois est et ouest, l'automate sera bien défini car les lignes et colonnes des bords n'ont pas de voisins, donc elles pourront se mettre à jour sans attendre que d'autres cases se mettent à jour.\\
+Si la première et dernière ligne sont voisines, on ne peut plus faire de dépendances nord ou sud. Les seuls cas où DEP sera bien défini seront $DEP = \{E\}$, $DEP = \{W\}$ ou $DEP = \emptyset$. Si on a $N$ ou $S$ dans $DEP$, par exemple $N$, la première ligne aura besoin de la dernière pour se mettre à jour, qui aura besoin de l'avant dernière, ..., qui aura besoin de la première. Donc l'automate n'est plus bien défini.\\
+Dans le cas où la première et la dernière colonne sont voisines aussi, il n'y a plus aucune dépendance possible. Le seul cas où l'automate sera bien défini est le cas $DEP = \emptyset$.
+
+
+\section*{Question 6}
+On peut trouver un algorithme efficace équivalent à l'algorithme séquentiel si les dépendances sont $DEP = \{N\}$, $DEP = \{W\}$ ou $DEP = \{N, W\}$. Dans les cas où on a $S$ ou $E$ dans les dépendances, on ne peut pas appliquer l'algorithme séquentiel, car comme on va de haut en bas et de gauche à droite, lorsqu'on veut mettre à jour une case, il n'y a que les cases au nord et à l'est qui ont été modifiées. On ne peut donc pas prendre en compte les modifications des cases à l'est et au sud.\\
+Dans le cas où $DEP = \{N\}$, on a un algorithme parallèle efficace en pipelinant les calculs... (to be continued)
+
+\section*{Question 8}
+
+\end{document}
