@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include<string.h>
 
-#define n 100
 #define min(a,b) (a<=b?a:b)
 
 int sqrti(int x){
@@ -13,10 +13,22 @@ int sqrti(int x){
 }
 
 int main(int argc, char** argv){
+  int n=100; 
   double d=0.3;
   int i,j,p,l,s;
   int k;
-  int nb_step =1;
+  int nb_step =0;
+
+
+if (argc != 4)
+    {
+        printf("il n'y a pas le bon nombre d'arguments.\n");
+        return 1;
+    }
+ n = atoi(argv[1]);
+ nb_step=atoi(argv[2]);
+ d=atof(argv[3]);
+
   MPI_Init(NULL, NULL);
   // Get the number of processes
   int world_size;
@@ -33,13 +45,13 @@ int main(int argc, char** argv){
   int col= world_rank%kp;
   
   k=sqrti(n*n/p); 
-  int k_col=k, k_row=k;//nb de lignes/colonnes par processus
+  int k_col=k, k_row=k;//nb de lignes/colonnes pour le processus
   
-  if(world_rank/k< (n*n) % p){k_row++;};
-  if(world_rank % k<(n*n) % p){k_col++;};
+  if(row< n % kp){k_row++;};
+  if(col< n % kp){k_col++;};
 
   int data[n][n];
-  //  srand(time(NULL));
+  srand(time(NULL));
   for(i=0;i<n;i++){
     for(j=0;j<n;j++){
       if((double)rand()/(double)RAND_MAX<d){data[i][j]=1;}
@@ -47,8 +59,8 @@ int main(int argc, char** argv){
     }
   }
   
-  int start_i = row*k_row;//world_rank/k * k + min(n% p,world_rank/k); 
-  int start_j = col*k_col;//world_rank %k * k + min(world_rank%k,n%p);
+  int start_i = row*k_row + min(n%kp, row);
+  int start_j = col*k_col + min(n%kp,col);
   printf("\n********\n proc %d :%d,%d\n**********\n", world_rank,start_i, start_j);  
   int mydata[k_row+2][k_col+2];
   
