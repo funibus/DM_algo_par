@@ -8,7 +8,7 @@
 
 int sqrti(int x){
   float y =x;
-  return ceil(sqrt(y));
+  return floor(sqrt(y));
 
 }
 
