@@ -63,6 +63,11 @@ if (argc != 4)
   int start_j = col*k_col + min(n%kp,col);
   printf("\n********\n proc %d :%d,%d\n**********\n", world_rank,start_i, start_j);  
   int mydata[k_row+2][k_col+2];
+  for( i=0; i<k_row+2; i++){
+    for(j=0; j<k_col+2; j++){
+      mydata[i][j]= 0;
+    }
+  };
   
   for( i=0; i<k_row; i++){
     for(j=0; j<k_col; j++){
@@ -88,10 +93,14 @@ if (argc != 4)
   int est= fest(world_rank);
   int ouest = fouest(world_rank);
 
-  int ne= fnord(fest(world_rank));
+
+  //pour communiquer directement avec les proc diagonaux (interdit à priori)
+  /*  int ne= fnord(fest(world_rank));
   int no=fnord(fouest(world_rank));
   int se=fsud(fest(world_rank));
-  int so= fsud(fouest(world_rank));
+  int so= fsud(fouest(world_rank));*/
+
+
   //gérer les send/receive
 
   int sendw[k_row+1], sende[k_row+1], recw[k_row+1], rece[k_row+1];
@@ -123,19 +132,29 @@ if (argc != 4)
     MPI_Recv(recw, k_row, MPI_INT, ouest, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     //printf("proc %d : message reçu\n",world_rank);
 
-    //communication avec les processus en diagonale
-    MPI_Isend(&mydata[1][1],1,MPI_INT, no, 0, MPI_COMM_WORLD, &request);
-    MPI_Isend(&mydata[1][k_col],1,MPI_INT, ne, 0, MPI_COMM_WORLD, &request);
-    MPI_Isend(&mydata[k_row][1],1,MPI_INT, so, 0, MPI_COMM_WORLD, &request);
-    MPI_Isend(&mydata[k_row][k_col],1,MPI_INT, se, 0, MPI_COMM_WORLD, &request);
+    /*    //communication avec les processus en diagonale
+    MPI_Isend(&mydata[0][0],1,MPI_INT, no, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(&mydata[0][k_col+1],1,MPI_INT, ne, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(&mydata[k_row+1][0],1,MPI_INT, so, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(&mydata[k_row+1][k_col+1],1,MPI_INT, se, 0, MPI_COMM_WORLD, &request);
 
-    MPI_Recv(&mydata[k_row][k_col], 1, MPI_INT, se, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(&mydata[k_row][1], 1, MPI_INT, so, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(&mydata[1][k_col], 1, MPI_INT, ne, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(&mydata[1][1], 1, MPI_INT, no, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  
-    //  int trnord[k_col], trsud[k_col], trest[k_row], trouest[k_row];//tableaux reçus 
-    //int tsnord[k_col], tssud[k_col], tsest[k_row], tsouest[k_row];//tableaux à envoyer
+    MPI_Recv(&mydata[k_row+1][k_col+1], 1, MPI_INT, se, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&mydata[k_row+1][0], 1, MPI_INT, so, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&mydata[0][k_col+1], 1, MPI_INT, ne, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&mydata[0][0], 1, MPI_INT, no, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    */
+
+
+    MPI_Isend(&mydata[0][0],1,MPI_INT, nord, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(&mydata[k_row+1][0],1,MPI_INT, ouest, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(&mydata[k_row+1][k_col+1],1,MPI_INT, sud, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(&mydata[0][k_col+1],1,MPI_INT, est, 0, MPI_COMM_WORLD, &request);
+
+    MPI_Recv(&mydata[k_row+1][0], 1, MPI_INT, sud, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&mydata[k_row+1][k_col+1], 1, MPI_INT, est, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&mydata[k_col+1][0], 1, MPI_INT, nord, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&mydata[0][0], 1, MPI_INT, ouest, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
 
   
     //étape    
@@ -155,7 +174,8 @@ if (argc != 4)
     
     for( i=1; i<=k_row; i++){
       for(j=1; j<=k_col; j++){
-	//	printf("%d voisins\n", voisins[i][j]);
+
+	if(voisins[i][j]){printf("proc %d : %d,%d : %d voisins\n", world_rank,i,j,voisins[i][j]);;}
 	if(voisins[i][j]==3){mydata[i][j]=1;}
 	else{if(voisins[i][j]!=2){mydata[i][j]=0;};
 	}
