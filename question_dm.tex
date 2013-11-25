@@ -18,7 +18,7 @@
 
 \maketitle
 
-\section*{Question 3}
+%\section*{Question 3}
 
 
 \section*{Question 5}
@@ -61,7 +61,7 @@ Si maintenant on a une topologie d'anneau, on peut toujours trouver des algorith
 \label{anneau1}
 \end{figure}
 De même si $DEP = \{W\}$ on attribue des blocs de lignes à chaque processeur.\\
-Si $DEP = \{N,W\}$, on attribue des blocs de colonnes à chaque processeur, le premier calcule la première ligne puis envoie son dernier élément au deuxième, qui peut alors calculer sa première ligne, pendant que le première processeur calcule sa deuxième ligne et ainsi de suite (cd figure \ref{anneau2}).
+Si $DEP = \{N,W\}$, on attribue des blocs de colonnes à chaque processeur, le premier calcule la première ligne puis envoie son dernier élément au deuxième, qui peut alors calculer sa première ligne, pendant que le première processeur calcule sa deuxième ligne et ainsi de suite (cf figure \ref{anneau2}).
 \begin{figure}[!h]
 \includegraphics[scale=0.5]{anneau2.png}
 \caption{topologie d'anneau et $DEP = \{N,W\}$}
@@ -69,6 +69,33 @@ Si $DEP = \{N,W\}$, on attribue des blocs de colonnes à chaque processeur, le p
 \end{figure}
 
 \section*{Question 8}
+On peut se ramener à un automate sans dépendances en découpant la matrice en lignes. On note $Ligne(i,t)$ la ième ligne de l'automate avec les dépendances après t épates de calcul (où une étape de calcul correspond à la mise à jour de tous les éléments de la matrice). Si la matrice initiale $M$ est de taille $nxn$, on va considérer la matrice $M'$ dont les 2 dernières lignes sont celles de $M$ à l'instant 0, les 2 précédentes sont celles de $M$ à l'instant 1, les 2 précédentes sont celles de $M$ à l'instant 2, etc (cf figure \ref{decoupage}).\\
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[scale=0.5]{decoupage.png}
+\caption{assemblage des lignes dans le cas $n=7$}
+\end{center}
+\label{decoupage}
+\end{figure}
+
+Une fois qu'on a cette matrice, on peut mettre à jour toutes les lignes de rang impair simultanément, car la ligne au dessus d'eux est à l'instant d'après, et la ligne en dessous est au même instant. Donc tous les éléments autour sont dans le bon état pour calculer la mise à jour. On obtient la matrice de la figure \ref{1ere_etape}. \\
+
+\begin{figure}[!h]
+\includegraphics[scale=0.45]{1ere_etape.png}
+\caption{une étape de calcul dans le cas $n = 7$}
+\label{1ere_etape}
+\end{figure}
+
+Et on peut ensuite mettre à jour les lignes de rang pair simultanément. On réalise ainsi une mise à jour de l'automate en seulement 2 étapes. Pour se ramener à un automate où tous les éléments sont mis à jour à chaque étape, on considère des couples $(i,j)$ où $i$ est l'ancien élément de la matrice, et $j$ indique si l'élément doit être mis à jour à cette étape ou pas ($j$ alterne entre 0 et 1).
+Si on avait une fonction $f$ permettant de mettre à jour une case en fonction de ses voisines dans l'automate initial ($f(a)$ représente la valeur de $a$ après sa mise à jour en fonction de ses voisins), on définit une fonction $g$ pour le nouvel automate : $g(a,0) = (a,1)$ (si $j = 0$, la case ne doit pas être mise à jour, mais elle devra l'être à la prochaine étape), et $g(a,1) = f(a)$ (où $f(a)$ ne prend en compte que les premiers éléments des couples des cases voisines) (cf figure \ref{avec_j}).\\
+\begin{figure}[!h]
+\includegraphics[scale=0.5]{avec_j.png}
+\caption{une étape de calcul avec $j$}
+\label{avec_j}
+\end{figure}
+
+On obtient ainsi un automate sans dépendances équivalent à l'automate avec dépendances précédent.
 
 
 
