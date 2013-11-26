@@ -28,11 +28,15 @@ Si p divise n, on répartit les cases de la matrices en assignant un bloc de tai
   \label{repartition}
 \end{figure}
 
+Dans le cas où p ne divise pas n, soit k = n mod p, on assigne tout simplement un rang de plus aux processus des k premiers rangs et une colonne de plus aux processus des k premières colonnes.
+
 Chaque processus se charge de du calcul de la valeur suivante de toutes les cases de son bloc. Pour calculer les valeurs des cases situées aux extrémités, il a besoin de connaître toutes les valeurs des cases de la matrice adjacentes à son bloc. Cela comprend $\frac n {p}$ valeurs pour chacun des processus situés au nord, à l'est, au sud et à l'ouest et une valeur pour les processus en diagonale donc $4 (\frac{n} {p}+1)$ valeurs au total. 
 
 Chaque processus retiendra donc une matrice de taille  $\frac n p +1* \frac n p +1$, modifiera lui-même $\frac n p * \frac n p$ de ces cases et recevra celles situées aux extrémités des autres processus.
 
 La topologie utilisée n'autorise pas à communiquer directement avec les processus diagonaux, ce qui représente 4 valeurs. Mais chacun des processus diagonaux envoie la valeur qui nous est utile à deux processus voisins du processus considéré sur la topologie. Par exemple, un processus a besoin de la valeur de la case 0,0 de la matrice du processus situé au sud-est et les processus sud et est ont tous les deux besoin de cette valeur pour calculer leurs cases $0,\frac n p$ et $\frac n p,0$. Il est donc possible de l'envoyer en passant par l'un de ces deux processus sans surcoût de communication.
+
+
 
 
 
