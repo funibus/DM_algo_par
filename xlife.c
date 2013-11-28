@@ -68,8 +68,8 @@ int main(int argc, char** argv){
     }
   }
   
-  int start_i = row*k_row + min(n%kp, row);
-  int start_j = col*k_col + min(n%kp,col);
+  int start_i = row*k + min(n%kp, row);
+  int start_j = col*k + min(n%kp,col);
 
   int** mydata =(int **) malloc((k_row+2)*sizeof(int*));
   for (i = 0; i<k_row; i++)
@@ -145,7 +145,7 @@ fprintf(stderr, "proc %d, coucou1\n", world_rank);
 		}
 
 fprintf(stderr, "proc %d, coucou2\n", world_rank);
-	//**********les lignes et colonnes du bord se mettent d'accord pour savoir s'il faut etendre ou pas**********
+//**********les lignes et colonnes du bord se mettent d'accord pour savoir s'il faut etendre ou pas**********
 
 		if (col == 0) //les processeurs de la col 0 mettent en commun pour savoir s'ils doivent etendre
 		{
