@@ -14,7 +14,6 @@ int sqrti(int x){
 }
 
 double puissance (int i,int j){ //renvoie i^j
-  printf("%d,%d\n",i,j);
   int k;
   double r=1.0;
   if(j>0){
@@ -63,8 +62,9 @@ int main(int argc, char** argv){
  int mr, mc;
   fscanf(file,"%d",&mr);
   fscanf(file,"%d",&mc);
-  printf("%d,%d\n",mr,mc);
+  //  printf("%d,%d\n",mr,mc);
   int n= max(mr,mc);  
+
   k=sqrti(n*n/p); 
   
   int k_col=k, k_row=k;//nb de lignes/colonnes pour le processus
@@ -75,21 +75,22 @@ int main(int argc, char** argv){
   int start_i = row*k + min(n%kp, row);
   int start_j = col*k + min(n%kp,col);
 
-  int my_rows[k_row];
+  int my_rows[k_row+1];
   int tmp;
-  double diviseur= puissance(10,mc-(k_row+start_j)); 
-   printf("%f\n",diviseur);
+  double diviseur= puissance(10,mc-(k_col+start_j)); 
+  //  if(world_rank==3) printf("%d,%f\n",k_col,diviseur);
     for(i=0;i<start_i; i++)//on ignore les start_i premières lignes
     {
       fscanf(file,"%d", &tmp);
     }
 
-    for(i=start_i;i<start_i+k_row; i++)
+    for(i=0;i<k_row; i++)
     {//on lit les suivantes
-      if(i<mr){ fscanf(file,"%d", &tmp);
-	my_rows[i]=floor(tmp/diviseur);}
-
-      else{my_rows[i]=0;};
+      if(i+start_i<mr){ 
+	fscanf(file,"%d", &tmp);
+	my_rows[i]=floor(tmp/diviseur);
+      }
+	else{my_rows[i]=0;};
     }
 
     
@@ -107,21 +108,10 @@ int main(int argc, char** argv){
 
   for( i=1; i<=k_row; i++){
     for(j=k_col; j>0; j--){
-      //      printf("%d\n",my_rows[i-1]);
       mydata[i][j]= my_rows[i-1]%10;
       my_rows[i-1]/=10;
     }
   };
-
-  printf("proc %d: \n ",world_rank);
-
-  for( i=1; i<=k_row; i++){
-    for(j=1; j<=k_col; j++){
-      printf("%d ",mydata[i][j]);
-    }
-    printf("\n");
-
-    };
 
   fclose(file);
   MPI_Finalize();
