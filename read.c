@@ -64,22 +64,6 @@ int main(int argc, char** argv){
   fscanf(file,"%d",&mr);
   fscanf(file,"%d",&mc);
   printf("%d,%d\n",mr,mc);
-
-  /*int mat[mr][mc];
-  int rangee[mr];
-  for(i=0;i<mr;i++)
-    {
-      fscanf(file,"%d",&rangee[i]);
-    }
-  for(i=0;i<mr;i++){
-    for (j=mc-1;j>=0;j--)
-      {
-	mat[i][j]=rangee[i]%10;
-	rangee[i]/=10;
-	printf("%d ",mat[i][j]);
-      }
-    printf("\n");
-    }*/
   int n= max(mr,mc);  
   k=sqrti(n*n/p); 
   
@@ -99,11 +83,12 @@ int main(int argc, char** argv){
     {
       fscanf(file,"%d", &tmp);
     }
+
     for(i=start_i;i<start_i+k_row; i++)
     {//on lit les suivantes
       if(i<mr){ fscanf(file,"%d", &tmp);
-	printf("%d\n",tmp);
 	my_rows[i]=floor(tmp/diviseur);}
+
       else{my_rows[i]=0;};
     }
 
@@ -124,15 +109,17 @@ int main(int argc, char** argv){
     for(j=k_col; j>0; j--){
       //      printf("%d\n",my_rows[i-1]);
       mydata[i][j]= my_rows[i-1]%10;
-      my_rows[i]/=10;
+      my_rows[i-1]/=10;
     }
   };
 
+  printf("proc %d: \n ",world_rank);
+
   for( i=1; i<=k_row; i++){
     for(j=1; j<=k_col; j++){
-      printf("%d",mydata[i][j]);
+      printf("%d ",mydata[i][j]);
     }
-    printf("\n",mydata[i][j]);
+    printf("\n");
 
     };
 
