@@ -59,8 +59,8 @@ if (argc != 4)
     }
   }
   
-  int start_i = row*k_row + min(n%kp, row);
-  int start_j = col*k_col + min(n%kp,col);
+  int start_i = row*k + min(n%kp, row);
+  int start_j = col*k + min(n%kp,col);
   printf("\n********\n proc %d :%d,%d\n**********\n", world_rank,start_i, start_j);  
   int mydata[k_row+2][k_col+2];
   for( i=0; i<k_row+2; i++){
