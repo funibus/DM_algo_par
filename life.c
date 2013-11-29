@@ -61,7 +61,7 @@ if (argc != 4)
   
   int start_i = row*k + min(n%kp, row);
   int start_j = col*k + min(n%kp,col);
-  printf("\n********\n proc %d :%d,%d\n**********\n", world_rank,start_i, start_j);  
+  //  printf("\n********\n proc %d :%d,%d\n**********\n", world_rank,start_i, start_j);  
   int mydata[k_row+2][k_col+2];
   for( i=0; i<k_row+2; i++){
     for(j=0; j<k_col+2; j++){
@@ -175,7 +175,7 @@ if (argc != 4)
     for( i=1; i<=k_row; i++){
       for(j=1; j<=k_col; j++){
 
-	if(voisins[i][j]){printf("proc %d : %d,%d : %d voisins\n", world_rank,i,j,voisins[i][j]);;}
+
 	if(voisins[i][j]==3){mydata[i][j]=1;}
 	else{if(voisins[i][j]!=2){mydata[i][j]=0;};
 	}
@@ -188,7 +188,7 @@ if (argc != 4)
       if(mydata[i][j]){alive++;};
     }
   }
-  printf("alive : %d\n", alive);
+  //  printf("alive : %d\n", alive);
 
   int global_alive;
   MPI_Reduce(&alive,&global_alive,1,MPI_INT,MPI_SUM,0,MPI_COMM_WORLD);
