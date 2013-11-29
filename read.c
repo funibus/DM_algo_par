@@ -67,7 +67,7 @@ int main(int argc, char** argv){
 
   k=sqrti(n*n/p); 
   
-  int k_col=k, k_row=k;//nb de lignes/colonnes pour le processus
+  int k_col=k+2, k_row=k+2;//nb de lignes/colonnes pour le processus
   
   if(row< n % kp){k_row++;};
   if(col< n % kp){k_col++;};
@@ -75,16 +75,16 @@ int main(int argc, char** argv){
   int start_i = row*k + min(n%kp, row);
   int start_j = col*k + min(n%kp,col);
 
-  int my_rows[k_row+1];
+  int my_rows[k_row-2+1];
   int tmp;
-  double diviseur= puissance(10,mc-(k_col+start_j)); 
+  double diviseur= puissance(10,mc-(k_col-2+start_j)); 
   //  if(world_rank==3) printf("%d,%f\n",k_col,diviseur);
     for(i=0;i<start_i; i++)//on ignore les start_i premières lignes
     {
       fscanf(file,"%d", &tmp);
     }
 
-    for(i=0;i<k_row; i++)
+    for(i=0;i<k; i++)
     {//on lit les suivantes
       if(i+start_i<mr){ 
 	fscanf(file,"%d", &tmp);
@@ -99,15 +99,15 @@ int main(int argc, char** argv){
       scanf("%d", &tmp);
     }
   
-     int mydata[k_row+2][k_col+2];
-  for( i=0; i<k_row+2; i++){
-    for(j=0; j<k_col+2; j++){
+     int mydata[k_row][k_col];
+  for( i=0; i<k_row; i++){
+    for(j=0; j<k_col; j++){
       mydata[i][j]= 0;
     }
   };
 
-  for( i=1; i<=k_row; i++){
-    for(j=k_col; j>0; j--){
+  for( i=1; i<=k_row-2; i++){
+    for(j=k_col-2; j>0; j--){
       mydata[i][j]= my_rows[i-1]%10;
       my_rows[i-1]/=10;
     }
