@@ -132,7 +132,7 @@ int main(int argc, char** argv){
 
   fclose(file);
 
-    int fnord(i){
+  int fnord(i){
     return (i - kp +p) % p;
   };
   int fsud(i){
@@ -191,7 +191,7 @@ int main(int argc, char** argv){
 	      expand_e = 1;
 	  }
       }
-
+  
     //**********les lignes et colonnes du bord se mettent d'accord pour savoir s'il faut etendre ou pas**********
 
     if (col == 0) //les processeurs de la col 0 mettent en commun pour savoir s'ils doivent etendre
@@ -464,7 +464,7 @@ int main(int argc, char** argv){
 	prochain_expand_col = (prochain_expand_col +1)%kp;
       }
     MPI_Barrier(MPI_COMM_WORLD);
-
+  
     if (expand_e == 1) //s'il faut etendre a l'est
       {
 	if (col == prochain_expand_col)
@@ -579,14 +579,22 @@ int main(int argc, char** argv){
 	else if(voisins[i][j]!=2){mydata[i][j]=0;};
       }
     }
-  
+  }
   int alive=0;
   for( i=1; i<k_row-1; i++){
     for(j=1; j<k_col-1; j++){
       if(mydata[i][j]){alive++;};
     }
   }
+  
   printf("proc %d, de taille (%d,%d), alive : %d\n", world_rank, k_row,k_col,alive);
+  //  /*  printf("proc %d\n",world_rank);
+  for( i=1; i<=k_row-2; i++){
+    for(j=1; j<=k_col-2; j++){
+      if(world_rank==1) printf("%d ", mydata[i][j]);
+    }
+    printf("\n");
+    };
 
   int global_alive;
   MPI_Reduce(&alive,&global_alive,1,MPI_INT,MPI_SUM,0,MPI_COMM_WORLD);
@@ -594,7 +602,7 @@ int main(int argc, char** argv){
     printf("global_alive : %d\n", global_alive);
 
   }
-  }
+
 
   MPI_Finalize();
 
