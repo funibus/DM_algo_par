@@ -51,7 +51,7 @@ int main(int argc, char** argv){
   int col= world_rank%kp;
   
   k=sqrti(n*n/p); 
-  int k_col=k, k_row=k;//nb de lignes/colonnes pour le processus
+  int k_col=k+2, k_row=k+2;//nb de lignes/colonnes pour le processus, on ajoute 2 pour les lignes et colonnes des voisins
   
   if(row< n % kp){k_row++;};
   if(col< n % kp){k_col++;};
@@ -71,14 +71,14 @@ int main(int argc, char** argv){
   int start_i = row*k + min(n%kp, row);
   int start_j = col*k + min(n%kp,col);
 
-  int** mydata =(int **) malloc((k_row+2)*sizeof(int*));
+  int** mydata =(int **) malloc((k_row)*sizeof(int*));
   for (i = 0; i<k_row; i++)
       {
-	  		mydata[i] = (int*) calloc((k_col+2),sizeof(int));
+	  mydata[i] = (int*) calloc((k_col),sizeof(int));
       }
   
-  for( i=0; i<k_row; i++){
-    for(j=0; j<k_col; j++){
+  for( i=0; i<k_row-2; i++){
+    for(j=0; j<k_col-2; j++){
       mydata[i+1][j+1]= data[start_i+i][start_j+j];
     }
   };
@@ -111,8 +111,8 @@ fprintf(stderr, "proc %d, coucou1\n", world_rank);
 		if(row == 0)
 		{
 		  for(j=0; j<k_col-1;j++)
-		    {
-					if (mydata[0][j] == 1)
+				{
+					if (mydata[1][j] == 1)
 						expand_n = 1;
 				}
 		}
@@ -121,7 +121,7 @@ fprintf(stderr, "proc %d, coucou1\n", world_rank);
 		{
 		  for(j=0; j<k_col-1;j++)
 		    {
-					if (mydata[k_row-1][j] == 1)
+					if (mydata[k_row-2][j] == 1)
 						expand_s = 1;
 				}
 		}
@@ -130,7 +130,7 @@ fprintf(stderr, "proc %d, coucou1\n", world_rank);
 		{
 		  for(i=0; i<k_row-1;i++)
 		    {
-					if (mydata[i][0] == 1)
+					if (mydata[i][1] == 1)
 						expand_o = 1;
 				}
 		}
@@ -139,7 +139,7 @@ fprintf(stderr, "proc %d, coucou1\n", world_rank);
 		{
 		  for(i=0; i<k_row-1;i++)
 		    {
-					if (mydata[i][k_col-1] == 1)
+					if (mydata[i][k_col-2] == 1)
 						expand_e = 1;
 				}
 		}
@@ -491,37 +491,43 @@ fprintf(stderr, "proc %d, coucou5-\n", world_rank);
 		MPI_Barrier(MPI_COMM_WORLD);
 		//gérer les send/receive
 fprintf(stderr, "proc %d, coucou5\n", world_rank);
-    int sendw[k_row+1], sende[k_row+1], recw[k_row+1], rece[k_row+1];
-		for(i=1;i<=k_row;i++){
+    int sendw[k_row], sende[k_row], recw[k_row], rece[k_row];
+		for(i=1;i<k_row-1;i++){
 		  sendw[i]=mydata[i][1];
-		  sende[i]=mydata[i][k_col];
+		  sende[i]=mydata[i][k_col-2];
 		};
 fprintf(stderr, "proc %d, coucou5b\n", world_rank);
     MPI_Isend(mydata[1], k_col, MPI_INT, nord,  0, MPI_COMM_WORLD,&request);
     MPI_Request_free(&request);
-    MPI_Isend(mydata[k_row], k_col, MPI_INT, sud,  0, MPI_COMM_WORLD,&request);
+    MPI_Isend(mydata[k_row-2], k_col, MPI_INT, sud,  0, MPI_COMM_WORLD,&request);
     MPI_Request_free(&request);
+
+fprintf(stderr, "proc %d, coucou5bbb\n", world_rank);
+    MPI_Recv(mydata[k_row-1], k_col, MPI_INT, sud, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);    
+    MPI_Recv(mydata[0], k_col, MPI_INT, nord, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
+
 fprintf(stderr, "proc %d, coucou5bb\n", world_rank);
     MPI_Isend(sendw, k_row, MPI_INT, ouest,  0, MPI_COMM_WORLD,&request);
     MPI_Request_free(&request);
     MPI_Isend(sende, k_row, MPI_INT, est,  0, MPI_COMM_WORLD,&request);
     MPI_Request_free(&request);
   
-fprintf(stderr, "proc %d, coucou5bbb\n", world_rank);
-    MPI_Recv(mydata[k_row+1], k_col, MPI_INT, sud, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);    
-    MPI_Recv(mydata[0], k_col, MPI_INT, nord, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);    
-  
     MPI_Recv(rece, k_row, MPI_INT, est, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(recw, k_row, MPI_INT, ouest, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    MPI_Isend(&mydata[0][0],1,MPI_INT, nord, 0, MPI_COMM_WORLD, &request);
-    MPI_Isend(&mydata[k_row+1][0],1,MPI_INT, ouest, 0, MPI_COMM_WORLD, &request);
-    MPI_Isend(&mydata[k_row+1][k_col+1],1,MPI_INT, sud, 0, MPI_COMM_WORLD, &request);
-    MPI_Isend(&mydata[0][k_col+1],1,MPI_INT, est, 0, MPI_COMM_WORLD, &request);
+	for(i=1;i<k_row-1;i++){
+		mydata[i][0] = recw[i];
+		mydata[i][k_col-1] = rece[i];
+	}
 
-    MPI_Recv(&mydata[k_row+1][0], 1, MPI_INT, sud, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(&mydata[k_row+1][k_col+1], 1, MPI_INT, est, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(&mydata[k_col+1][0], 1, MPI_INT, nord, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Isend(&mydata[0][0],1,MPI_INT, nord, 0, MPI_COMM_WORLD, &request); //TODO d'ici
+    MPI_Isend(&mydata[k_row-1][0],1,MPI_INT, ouest, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(&mydata[k_row-1][k_col-1],1,MPI_INT, sud, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(&mydata[0][k_col-1],1,MPI_INT, est, 0, MPI_COMM_WORLD, &request);
+
+    MPI_Recv(&mydata[k_row-1][0], 1, MPI_INT, sud, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&mydata[k_row-1][k_col-1], 1, MPI_INT, est, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&mydata[k_col-1][0], 1, MPI_INT, nord, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(&mydata[0][0], 1, MPI_INT, ouest, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 
